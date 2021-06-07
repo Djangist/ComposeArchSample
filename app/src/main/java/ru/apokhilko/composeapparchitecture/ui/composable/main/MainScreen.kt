@@ -2,6 +2,8 @@ package ru.apokhilko.composeapparchitecture.ui.composable.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -30,6 +32,9 @@ fun ShowWeather() {
         ) {
             ShowCity()
             ShowWeatherImage()
+            showDescription()
+            showHourlyWeatherItems()
+            showDaysWeatherItems()
         }
     }
 }
@@ -61,21 +66,15 @@ fun ShowWeatherImage() {
                 showFeelingLike()
             }
             Spacer(modifier = Modifier.size(16.dp))
-            Column() {
+            Column {
+                Spacer(modifier = Modifier.size(16.dp))
                 showWeatherSpeed()
                 showHumidity()
                 showCloudity()
+                showPressure()
+                showVisibility()
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    ComposeAppArchitectureTheme {
-        ShowCity()
-        ShowWeatherImage()
     }
 }
 
@@ -95,11 +94,52 @@ fun showWeatherSpeed() {
 }
 
 @Composable
-fun showHumidity() {
+fun showPressure() {
     Text(text = "760 mm", style = Typography.caption)
+}
+
+@Composable
+fun showHumidity() {
+    Text(text = "76%", style = Typography.caption)
 }
 
 @Composable
 fun showCloudity() {
     Text(text = "76%", style = Typography.caption)
+}
+
+@Composable
+fun showVisibility() {
+    Text(text = "10000 m", style = Typography.caption)
+}
+
+@Composable
+fun showDescription() {
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()) {
+        Text("sunny", style = Typography.h5)
+    }
+}
+
+@Composable
+fun showHourlyWeatherItems() {
+    LazyRow() {
+        
+    }
+}
+
+@Composable
+fun showDaysWeatherItems() {
+    LazyColumn() {
+
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    ComposeAppArchitectureTheme {
+        ShowWeather()
+    }
 }
