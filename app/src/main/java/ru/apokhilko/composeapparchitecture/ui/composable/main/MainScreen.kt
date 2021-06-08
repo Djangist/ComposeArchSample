@@ -4,13 +4,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -23,7 +25,20 @@ import ru.apokhilko.composeapparchitecture.ui.theme.Typography
 fun ShowWeather() {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = "My Weather") })
+            TopAppBar(
+                backgroundColor = Purple700,
+                title = {
+                    Text(text = "Твоя погода",
+                        modifier = Modifier.fillMaxWidth(),
+                        style = Typography.h6,
+                        textAlign = TextAlign.Center)
+                },
+                actions = {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Filled.Favorite, contentDescription = null)
+                    }
+                }
+            )
         },
         backgroundColor = Purple700
     ) {
@@ -32,9 +47,9 @@ fun ShowWeather() {
         ) {
             ShowCity()
             ShowWeatherImage()
-            showDescription()
-            showHourlyWeatherItems()
-            showDaysWeatherItems()
+            ShowDescription()
+            ShowHourlyWeatherItems()
+            ShowDaysWeatherItems()
         }
     }
 }
@@ -51,88 +66,153 @@ fun ShowCity() {
 
 @Composable
 fun ShowWeatherImage() {
-    ConstraintLayout() {
-        Row() {
-            Image(
-                painter = painterResource(id = R.drawable.ic_511_night),
-                contentDescription = "weather_icon",
-                modifier = Modifier
-                    .height(150.dp)
-                    .width(150.dp),
-                contentScale = ContentScale.FillBounds
-            )
-            Column {
-                showGradus()
-                showFeelingLike()
-            }
+    Row {
+        Image(
+            painter = painterResource(id = R.drawable.ic_511_night),
+            contentDescription = "weather_icon",
+            modifier = Modifier
+                .height(150.dp)
+                .width(150.dp),
+            contentScale = ContentScale.FillBounds
+        )
+        Column {
+            ShowGradus()
+            ShowFeelingLike()
+        }
+        Spacer(modifier = Modifier.size(16.dp))
+        Column {
             Spacer(modifier = Modifier.size(16.dp))
-            Column {
-                Spacer(modifier = Modifier.size(16.dp))
-                showWeatherSpeed()
-                showHumidity()
-                showCloudity()
-                showPressure()
-                showVisibility()
-            }
+            ShowWeatherSpeed()
+            ShowHumidity()
+            ShowCloudity()
+            ShowPressure()
+            ShowVisibility()
         }
     }
 }
 
 @Composable
-fun showGradus() {
+fun ShowGradus() {
     Text("19", style = Typography.h3)
 }
 
 @Composable
-fun showFeelingLike() {
+fun ShowFeelingLike() {
     Text("Feels like", style = Typography.button)
 }
 
 @Composable
-fun showWeatherSpeed() {
+fun ShowWeatherSpeed() {
     Text(text = "4 ms", style = Typography.caption)
 }
 
 @Composable
-fun showPressure() {
+fun ShowPressure() {
     Text(text = "760 mm", style = Typography.caption)
 }
 
 @Composable
-fun showHumidity() {
+fun ShowHumidity() {
     Text(text = "76%", style = Typography.caption)
 }
 
 @Composable
-fun showCloudity() {
+fun ShowCloudity() {
     Text(text = "76%", style = Typography.caption)
 }
 
 @Composable
-fun showVisibility() {
+fun ShowVisibility() {
     Text(text = "10000 m", style = Typography.caption)
 }
 
 @Composable
-fun showDescription() {
+fun ShowDescription() {
     Row(
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()) {
+        modifier = Modifier.fillMaxWidth()
+    ) {
         Text("sunny", style = Typography.h5)
     }
 }
 
 @Composable
-fun showHourlyWeatherItems() {
+fun ShowHourlyWeatherItems() {
+    Spacer(modifier = Modifier.size(8.dp))
     LazyRow() {
-        
+        items(20) {
+            HoursItem()
+            Spacer(modifier = Modifier.size(8.dp))
+        }
     }
 }
 
 @Composable
-fun showDaysWeatherItems() {
-    LazyColumn() {
+fun HoursItem() {
+    Column() {
+        Text("20:00")
+        Image(
+            painter = painterResource(id = R.drawable.ic_511_night),
+            contentDescription = null,
+            modifier = Modifier
+                .height(40.dp)
+                .width(40.dp)
+        )
+        Text("18")
+    }
+}
 
+@Composable
+fun ShowDaysWeatherItems() {
+    Spacer(modifier = Modifier.size(16.dp))
+    LazyColumn() {
+        items(7) {
+            DayItem()
+            Spacer(modifier = Modifier.size(8.dp))
+        }
+    }
+}
+
+@Composable
+fun DayItem() {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
+            val (column, image, text1, text2) = createRefs()
+            Column(horizontalAlignment = Alignment.Start,
+            modifier = Modifier.constrainAs(column) {
+                start.linkTo(parent.start)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+            }) {
+                Text(text = "8 June")
+                Text("Wednesday")
+            }
+            Image(
+                painter = painterResource(id = R.drawable.ic_511_night),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(60.dp)
+                    .width(60.dp)
+                    .constrainAs(image) {
+                        end.linkTo(text1.start, margin = 8.dp)
+                    }
+            )
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(text = "20",
+                style = Typography.body1,
+                modifier = Modifier.constrainAs(text1){
+                    end.linkTo(text2.start, margin = 8.dp)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                })
+            Text(text = "18",
+                style = Typography.caption,
+                modifier = Modifier.constrainAs(text2){
+                    end.linkTo(parent.end)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+                })
+        }
     }
 }
 
