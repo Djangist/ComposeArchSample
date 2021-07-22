@@ -1,4 +1,4 @@
-package ru.apokhilko.composeapparchitecture.viewmodel
+package ru.apokhilko.composeapparchitecture.ui.composable.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

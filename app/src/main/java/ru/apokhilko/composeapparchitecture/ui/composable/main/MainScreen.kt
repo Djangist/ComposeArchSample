@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -29,6 +27,25 @@ import ru.apokhilko.composeapparchitecture.ui.theme.Purple700
 import ru.apokhilko.composeapparchitecture.ui.theme.Typography
 
 @Composable
+fun MainScreen(viewModel: MainViewModel) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        val mainWeather = viewModel.mainWeatherData.value
+        val daysWeather = viewModel.daysWeatherData.value
+        val hoursWeather = viewModel.hoursWeatherData.value
+        ShowWeather(
+            viewModel.isRefreshing.value,
+            mainWeather,
+            daysWeather,
+            hoursWeather
+        ) { viewModel.refreshData() }
+    }
+}
+
+@Composable
 fun ShowWeather(
     isRefreshing: Boolean,
     weatherData: WeatherData,
@@ -40,18 +57,20 @@ fun ShowWeather(
         topBar = { Toolbar() },
         backgroundColor = Purple700
     ) {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
-            onRefresh = refreshCallback
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
-            Column(modifier = Modifier
-                .padding(16.dp)
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing),
+                onRefresh = refreshCallback
             ) {
-                ShowCity(weatherData.city)
-                ShowWeatherImage(weatherData)
-                ShowDescription(weatherData.description)
-                ShowHourlyWeatherItems(hourItems)
-                ShowDaysWeatherItems(dayItems)
+                Column() {
+                    ShowCity(weatherData.city)
+                    ShowWeatherImage(weatherData)
+                    ShowDescription(weatherData.description)
+                    ShowHourlyWeatherItems(hourItems)
+                    ShowDaysWeatherItems(dayItems)
+                }
             }
         }
     }
