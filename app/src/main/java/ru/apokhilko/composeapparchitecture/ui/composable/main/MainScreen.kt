@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -18,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import ru.apokhilko.composeapparchitecture.R
@@ -27,50 +30,43 @@ import ru.apokhilko.composeapparchitecture.ui.theme.Purple700
 import ru.apokhilko.composeapparchitecture.ui.theme.Typography
 
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        val mainWeather = viewModel.mainWeatherData.value
-        val daysWeather = viewModel.daysWeatherData.value
-        val hoursWeather = viewModel.hoursWeatherData.value
-        ShowWeather(
-            viewModel.isRefreshing.value,
-            mainWeather,
-            daysWeather,
-            hoursWeather
-        ) { viewModel.refreshData() }
-    }
+fun MainScreen() {
+    val viewModel: MainViewModel = hiltViewModel()
+    val mainWeather = viewModel.mainWeatherData.value
+    val daysWeather = viewModel.daysWeatherData.value
+    val hoursWeather = viewModel.hoursWeatherData.value
+
+    ShowWeather(
+        viewModel,
+        mainWeather,
+        daysWeather,
+        hoursWeather
+    )
 }
 
 @Composable
 fun ShowWeather(
-    isRefreshing: Boolean,
+    viewModel: MainViewModel,
     weatherData: WeatherData,
     dayItems: List<WeatherData>,
-    hourItems: List<WeatherData>,
-    refreshCallback: () -> Unit
+    hourItems: List<WeatherData>
 ) {
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
     Scaffold(
         topBar = { Toolbar() },
         backgroundColor = Purple700
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            onRefresh = { viewModel.refreshData() }
         ) {
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing),
-                onRefresh = refreshCallback
-            ) {
-                Column() {
-                    ShowCity(weatherData.city)
-                    ShowWeatherImage(weatherData)
-                    ShowDescription(weatherData.description)
-                    ShowHourlyWeatherItems(hourItems)
-                    ShowDaysWeatherItems(dayItems)
-                }
+            Column(modifier = Modifier.padding(16.dp)) {
+                ShowCity(weatherData.city)
+                ShowWeatherImage(weatherData)
+                ShowDescription(weatherData.description)
+                ShowHourlyWeatherItems(hourItems)
+                ShowDaysWeatherItems(dayItems)
             }
         }
     }
@@ -108,7 +104,9 @@ fun Toolbar() {
 fun ShowCity(city: String) {
     Row(
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
         Text(text = city, style = Typography.h5)
     }
@@ -116,7 +114,7 @@ fun ShowCity(city: String) {
 
 @Composable
 fun ShowWeatherImage(weatherData: WeatherData) {
-    Row {
+    Row(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Image(
             painter = painterResource(id = weatherData.weatherIcon),
             contentDescription = null,
@@ -204,7 +202,9 @@ fun ShowVisibility(visibilityMeters: Int) {
 fun ShowDescription(description: String) {
     Row(
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = description,
@@ -216,7 +216,11 @@ fun ShowDescription(description: String) {
 @Composable
 fun ShowHourlyWeatherItems(hourItems: List<WeatherData>) {
     Spacer(modifier = Modifier.size(8.dp))
-    LazyRow {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
         items(hourItems) {
             HoursItem(it)
             Spacer(modifier = Modifier.size(8.dp))
@@ -303,10 +307,7 @@ fun DayItem(weatherData: WeatherData) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    val dayItems = listOf(WeatherData(), WeatherData(), WeatherData())
-    val hourItems =
-        listOf(WeatherData(), WeatherData(), WeatherData(), WeatherData(), WeatherData())
     ComposeAppArchitectureTheme {
-        ShowWeather(false, WeatherData(), dayItems, hourItems, {})
+        MainScreen()
     }
 }

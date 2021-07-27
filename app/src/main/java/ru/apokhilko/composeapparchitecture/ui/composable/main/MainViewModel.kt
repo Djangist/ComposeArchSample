@@ -3,6 +3,7 @@ package ru.apokhilko.composeapparchitecture.ui.composable.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +29,12 @@ class MainViewModel @Inject constructor(
     private var _isRefreshing = MutableStateFlow(false  )
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
+    init {
+        loadMainWeather()
+        loadDaysData()
+        loadHoursData()
+    }
+
     fun loadMainWeather(fromRefresh: Boolean = false) {
         viewModelScope.launch {
             val weatherData = interactor.getMainWeatherData(fromRefresh)
@@ -46,16 +53,19 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val weatherData = interactor.getHoursWeatherData(fromRefresh)
             _hoursWeatherData.value = weatherData
-            _isRefreshing.emit( false)
         }
     }
 
     fun refreshData() {
         viewModelScope.launch {
             _isRefreshing.emit(true)
+            delay(3000) // TODO temporary
+
             loadMainWeather(fromRefresh = true)
             loadDaysData(fromRefresh = true)
             loadHoursData(fromRefresh = true)
+
+            _isRefreshing.emit( false)
         }
     }
 }
