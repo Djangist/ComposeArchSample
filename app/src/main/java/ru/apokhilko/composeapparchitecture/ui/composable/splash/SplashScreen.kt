@@ -1,6 +1,5 @@
 package ru.apokhilko.composeapparchitecture.ui.composable.splash
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,25 +9,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import ru.apokhilko.composeapparchitecture.R
 import ru.apokhilko.composeapparchitecture.ui.UIState
 import ru.apokhilko.composeapparchitecture.ui.theme.SplashColor
-
-const val TAG = "Compose"
 
 @Composable
 fun SplashScreen(navController: NavController)  {
     val viewModel: SplashViewModel = hiltViewModel()
     val state = remember { viewModel.state }
     if( state.value is UIState.NavigateTo ){
-        Log.d(TAG,"navigate to main")
         navController.popBackStack()
         navController.navigate("main")
     }
 
-    Log.d(TAG,"splash recompose ${state.value}")
     Column(
         modifier = Modifier
             .fillMaxWidth()
