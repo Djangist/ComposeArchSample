@@ -32,15 +32,15 @@ import ru.apokhilko.composeapparchitecture.ui.theme.Typography
 @Composable
 fun MainScreen() {
     val viewModel: MainViewModel = hiltViewModel()
-    val mainWeather = viewModel.mainWeatherData.value
-    val daysWeather = viewModel.daysWeatherData.value
-    val hoursWeather = viewModel.hoursWeatherData.value
+    val mainWeather = viewModel.mainWeatherData.collectAsState()
+    val daysWeather = viewModel.daysWeatherData.collectAsState()
+    val hoursWeather = viewModel.hoursWeatherData.collectAsState()
 
     ShowWeather(
         viewModel,
-        mainWeather,
-        daysWeather,
-        hoursWeather
+        mainWeather.value,
+        daysWeather.value,
+        hoursWeather.value
     )
 }
 
