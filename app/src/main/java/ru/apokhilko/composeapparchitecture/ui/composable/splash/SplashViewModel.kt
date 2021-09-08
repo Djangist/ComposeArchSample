@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.apokhilko.composeapparchitecture.ui.Destinations
 import ru.apokhilko.composeapparchitecture.ui.UIState
 import javax.inject.Inject
 
@@ -18,7 +19,7 @@ class SplashViewModel @Inject constructor() : ViewModel() {
     init {
         viewModelScope.launch {
             delay(3000)
-            _state.value = UIState.NavigateTo("main")
+            _state.value = UIState.NavigateTo(Destinations.Main())
         }
     }
 }

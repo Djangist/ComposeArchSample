@@ -1,8 +1,8 @@
 package ru.apokhilko.composeapparchitecture
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,7 +12,7 @@ import ru.apokhilko.composeapparchitecture.ui.composable.splash.SplashScreen
 import ru.apokhilko.composeapparchitecture.ui.theme.ComposeAppArchitectureTheme
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

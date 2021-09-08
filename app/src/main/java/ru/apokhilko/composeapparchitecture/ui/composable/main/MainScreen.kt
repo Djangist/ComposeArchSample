@@ -1,23 +1,30 @@
 package ru.apokhilko.composeapparchitecture.ui.composable.main
 
-import androidx.compose.foundation.Image
+import android.graphics.Color
+import androidx.compose.animation.*
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color.Companion.Blue
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,6 +36,7 @@ import ru.apokhilko.composeapparchitecture.ui.theme.ComposeAppArchitectureTheme
 import ru.apokhilko.composeapparchitecture.ui.theme.Purple700
 import ru.apokhilko.composeapparchitecture.ui.theme.Typography
 
+@ExperimentalAnimationApi
 @Composable
 fun MainScreen() {
     val viewModel: MainViewModel = hiltViewModel()
@@ -44,6 +52,7 @@ fun MainScreen() {
     )
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun ShowWeather(
     viewModel: MainViewModel,
@@ -63,7 +72,7 @@ fun ShowWeather(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 ShowCity(weatherData.city)
-                ShowWeatherImage(weatherData)
+                ShowWeatherImage(weatherData, isRefreshing)
                 ShowDescription(weatherData.description)
                 ShowHourlyWeatherItems(hourItems)
                 ShowDaysWeatherItems(dayItems)
@@ -112,8 +121,9 @@ fun ShowCity(city: String) {
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
-fun ShowWeatherImage(weatherData: WeatherData) {
+fun ShowWeatherImage(weatherData: WeatherData, isRefreshing: Boolean) {
     Row(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Image(
             painter = painterResource(id = weatherData.weatherIcon),
@@ -124,7 +134,7 @@ fun ShowWeatherImage(weatherData: WeatherData) {
             contentScale = ContentScale.FillBounds
         )
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            ShowTemperature(weatherData.temperature)
+            ShowTemperature(weatherData.temperature, isRefreshing)
             ShowFeelingLike(weatherData.feelsLike)
         }
         Spacer(modifier = Modifier.size(16.dp))
@@ -140,12 +150,17 @@ fun ShowWeatherImage(weatherData: WeatherData) {
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
-fun ShowTemperature(temprature: Int) {
-    Text(
-        text = temprature.toString(),
-        style = Typography.h3
-    )
+fun ShowTemperature(temprature: Int, isRefreshing: Boolean) {
+    AnimatedVisibility(
+        visible = !isRefreshing,
+    ) {
+        Text(
+            text = temprature.toString(),
+            style = Typography.h3
+        )
+    }
 }
 
 @Composable
@@ -304,6 +319,7 @@ fun DayItem(weatherData: WeatherData) {
     }
 }
 
+@ExperimentalAnimationApi
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
