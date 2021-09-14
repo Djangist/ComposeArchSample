@@ -2,6 +2,7 @@ package ru.apokhilko.composeapparchitecture.ui.composable.main
 
 import android.graphics.Color
 import androidx.compose.animation.*
+import androidx.compose.animation.core.estimateAnimationDurationMillis
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
@@ -155,6 +156,7 @@ fun ShowWeatherImage(weatherData: WeatherData, isRefreshing: Boolean) {
 fun ShowTemperature(temprature: Int, isRefreshing: Boolean) {
     AnimatedVisibility(
         visible = !isRefreshing,
+        enter = fadeIn(animationSpec = tween(1000))
     ) {
         Text(
             text = temprature.toString(),
