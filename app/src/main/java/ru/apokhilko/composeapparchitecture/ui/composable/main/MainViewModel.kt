@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.apokhilko.composeapparchitecture.domain.WeatherData
 import ru.apokhilko.composeapparchitecture.domain.interactor.WeatherInteractor
 import javax.inject.Inject
 
@@ -17,55 +16,54 @@ class MainViewModel @Inject constructor(
     private val interactor: WeatherInteractor
 ) : ViewModel() {
 
-    private val _mainWeatherData = MutableStateFlow(WeatherData())
-    val mainWeatherData: StateFlow<WeatherData> = _mainWeatherData.asStateFlow()
-
-    private val _daysWeatherData = MutableStateFlow<List<WeatherData>>(emptyList())
-    val daysWeatherData: StateFlow<List<WeatherData>> = _daysWeatherData.asStateFlow()
-
-    private val _hoursWeatherData = MutableStateFlow<List<WeatherData>>(emptyList())
-    val hoursWeatherData: StateFlow<List<WeatherData>> = _hoursWeatherData.asStateFlow()
-
-    private var _isRefreshing = MutableStateFlow(false  )
-    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+    // --- main state
+    private var _state: MutableStateFlow<MainContract.MainState> =
+        MutableStateFlow(MainContract.MainState.InitialState)
+    val state: StateFlow<MainContract.MainState> = _state.asStateFlow()
 
     init {
-        loadMainWeather()
-        loadDaysData()
-        loadHoursData()
+        loadData(fromRefresh = false)
     }
 
-    fun loadMainWeather(fromRefresh: Boolean = false) {
-        viewModelScope.launch {
-            val weatherData = interactor.getMainWeatherData(fromRefresh)
-            _mainWeatherData.value = weatherData
+    fun dispatchAction(action: MainContract.MainAction) {
+        reducer(state = _state.value, action = action)
+    }
+
+    private fun reducer(
+        state: MainContract.MainState = MainContract.MainState.InitialState,
+        action: MainContract.MainAction
+    ): MainContract.MainState {
+        return when (action) {
+            is MainContract.MainAction.SwipeToRefreshAction -> {
+                _state.value = loadData(fromRefresh = true)
+                _state.value
+            }
+            else -> state
         }
     }
 
-    fun loadDaysData(fromRefresh: Boolean = false) {
+    private fun loadData(fromRefresh: Boolean): MainContract.MainState {
         viewModelScope.launch {
-            val weatherData = interactor.getDaysWeatherData(fromRefresh)
-            _daysWeatherData.value = weatherData
+            if( fromRefresh ) {
+                delay(3000) // TODO temp
+            }
+            updateData(fromRefresh = fromRefresh)
         }
+        return MainContract.MainState.LoadingState(
+            data = MainModel(isRefreshing = true)
+        )
     }
 
-    fun loadHoursData(fromRefresh: Boolean = false) {
+    private fun updateData(fromRefresh: Boolean) {
         viewModelScope.launch {
-            val weatherData = interactor.getHoursWeatherData(fromRefresh)
-            _hoursWeatherData.value = weatherData
-        }
-    }
-
-    fun refreshData() {
-        viewModelScope.launch {
-            _isRefreshing.emit(true)
-            delay(3000) // TODO temporary
-
-            loadMainWeather(fromRefresh = true)
-            loadDaysData(fromRefresh = true)
-            loadHoursData(fromRefresh = true)
-
-            _isRefreshing.emit( false)
+            _state.value = MainContract.MainState.UpdateDataState(
+                data = MainModel(
+                    isRefreshing = false,
+                    currentWeather = interactor.getMainWeatherData(fromRefresh),
+                    hoursWeather = interactor.getHoursWeatherData(fromRefresh),
+                    daysWeather = interactor.getDaysWeatherData(fromRefresh)
+                )
+            )
         }
     }
 }
