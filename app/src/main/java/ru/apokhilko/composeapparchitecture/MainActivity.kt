@@ -3,6 +3,7 @@ package ru.apokhilko.composeapparchitecture
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -11,6 +12,7 @@ import ru.apokhilko.composeapparchitecture.ui.composable.main.MainScreen
 import ru.apokhilko.composeapparchitecture.ui.composable.splash.SplashScreen
 import ru.apokhilko.composeapparchitecture.ui.theme.ComposeAppArchitectureTheme
 
+@ExperimentalAnimationApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
