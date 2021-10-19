@@ -109,6 +109,9 @@ dependencies {
     implementation 'com.google.dagger:hilt-android:2.37'
     kapt 'com.google.dagger:hilt-compiler:2.37'
 
+    implementation("org.orbit-mvi:orbit-core:4.2.0")
+    implementation("org.orbit-mvi:orbit-viewmodel:4.2.0")
+
     testImplementation 'junit:junit:4.13.2'
 
     testImplementation 'org.junit.platform:junit-platform-engine:1.6.2'
