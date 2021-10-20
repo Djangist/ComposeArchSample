@@ -18,12 +18,12 @@ class SplashViewModel @Inject constructor() : ViewModel(), ContainerHost<SplashS
 
     init {
         viewModelScope.launch {
-            delay(3000)
             navigateToMain()
         }
     }
 
     private fun navigateToMain() = intent {
+        delay(3000)
         postSideEffect(SplashSideEffect.NavigateTo("main"))
     }
 }
