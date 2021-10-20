@@ -25,15 +25,19 @@ class MainViewModel @Inject constructor(
         val daysWeather = interactor.getDaysWeatherData(fromRefresh)
         val hoursWeather = interactor.getHoursWeatherData(fromRefresh)
         reduce {
-            MainState(
+            state.copy(
                 mainWeather = mainWeather,
                 daysWeather = daysWeather,
-                hoursWeather = hoursWeather
+                hoursWeather = hoursWeather,
+                isRefreshing = false
             )
         }
     }
 
     fun pullToRefresh() = intent {
+        reduce {
+            state.copy(isRefreshing = true)
+        }
         delay(3000) //TODO just for sample
         loadWeather(fromRefresh = true)
     }
