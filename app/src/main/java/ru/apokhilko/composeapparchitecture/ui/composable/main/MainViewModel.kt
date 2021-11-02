@@ -1,69 +1,82 @@
 package ru.apokhilko.composeapparchitecture.ui.composable.main
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ru.apokhilko.composeapparchitecture.EmptyStore
+import ru.apokhilko.composeapparchitecture.domain.WeatherData
 import ru.apokhilko.composeapparchitecture.domain.interactor.WeatherInteractor
 import javax.inject.Inject
+
+typealias State = MainContract.State
+typealias Effect = MainContract.Effect
+typealias Action = MainContract.Action
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val interactor: WeatherInteractor
-) : ViewModel() {
-
-    // --- main state
-    private var _state: MutableStateFlow<MainContract.MainState> =
-        MutableStateFlow(MainContract.MainState.InitialState)
-    val state: StateFlow<MainContract.MainState> = _state.asStateFlow()
+) : EmptyStore<State, Effect, Action>(MainContract.State()) {
 
     init {
         loadData(fromRefresh = false)
     }
 
-    fun dispatchAction(action: MainContract.MainAction) {
-        reducer(state = _state.value, action = action)
-    }
-
-    private fun reducer(
-        state: MainContract.MainState = MainContract.MainState.InitialState,
-        action: MainContract.MainAction
-    ): MainContract.MainState {
+    override fun reducer(
+        state: State,
+        action: Action
+    ): State {
         return when (action) {
-            is MainContract.MainAction.SwipeToRefreshAction -> {
-                _state.value = loadData(fromRefresh = true)
-                _state.value
+            is MainContract.Action.SwipeToRefreshAction -> {
+                state.copy(
+                    isRefreshing = action.state.isRefreshing,
+                    hoursWeather = action.state.hoursWeather,
+                    daysWeather = action.state.daysWeather,
+                    currentWeather = action.state.currentWeather
+                )
             }
-            else -> state
+            is MainContract.Action.Loading -> {
+                state.copy(isRefreshing = true)
+            }
         }
     }
 
-    private fun loadData(fromRefresh: Boolean): MainContract.MainState {
+    private fun dispatchAction(action: Action) {
+        _state.value = reducer(state = _state.value, action = action)
+    }
+
+    fun loadData(fromRefresh: Boolean) {
         viewModelScope.launch {
-            if( fromRefresh ) {
+            if (fromRefresh) {
                 delay(3000) // TODO temp
             }
-            updateData(fromRefresh = fromRefresh)
-        }
-        return MainContract.MainState.LoadingState(
-            data = MainModel(isRefreshing = true)
-        )
-    }
-
-    private fun updateData(fromRefresh: Boolean) {
-        viewModelScope.launch {
-            _state.value = MainContract.MainState.UpdateDataState(
-                data = MainModel(
-                    isRefreshing = false,
-                    currentWeather = interactor.getMainWeatherData(fromRefresh),
-                    hoursWeather = interactor.getHoursWeatherData(fromRefresh),
-                    daysWeather = interactor.getDaysWeatherData(fromRefresh)
+            dispatchAction(
+                action = MainContract.Action.SwipeToRefreshAction(
+                    state = MainContract.State(
+                        isRefreshing = false,
+                        currentWeather = interactor.getMainWeatherData(fromRefresh),
+                        hoursWeather = interactor.getHoursWeatherData(fromRefresh),
+                        daysWeather = interactor.getDaysWeatherData(fromRefresh)
+                    )
                 )
             )
         }
+        dispatchAction(action = MainContract.Action.Loading)
     }
+}
+
+interface MainContract {
+    data class State(
+        val isRefreshing: Boolean = false,
+        val currentWeather: WeatherData = WeatherData(),
+        val hoursWeather: List<WeatherData> = emptyList(),
+        val daysWeather: List<WeatherData> = emptyList()
+    )
+
+    sealed class Action {
+        class SwipeToRefreshAction(val state: State) : Action()
+        object Loading : Action()
+    }
+
+    object Effect
 }

@@ -39,12 +39,11 @@ import ru.apokhilko.composeapparchitecture.ui.theme.Typography
 fun MainScreen() {
     val viewModel: MainViewModel = hiltViewModel()
     val state = viewModel.state.collectAsState().value
-
     ShowWeather(
         viewModel = viewModel,
-        weatherData = state.data.currentWeather,
-        dayItems = state.data.daysWeather,
-        hourItems = state.data.hoursWeather
+        weatherData = state.currentWeather,
+        dayItems = state.daysWeather,
+        hourItems = state.hoursWeather
     )
 }
 
@@ -57,7 +56,7 @@ fun ShowWeather(
     hourItems: List<WeatherData>
 ) {
     val state = viewModel.state.collectAsState().value
-    val isRefreshing = state.data.isRefreshing
+    val isRefreshing = state.isRefreshing
 
     Scaffold(
         topBar = { Toolbar() },
@@ -66,7 +65,7 @@ fun ShowWeather(
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing = isRefreshing),
             onRefresh = {
-                viewModel.dispatchAction(action = MainContract.MainAction.SwipeToRefreshAction)
+                viewModel.loadData(fromRefresh = true)
             }
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
